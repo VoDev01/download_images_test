@@ -2,7 +2,7 @@
 
 namespace Config;
 
-enum LogLevels:int
+enum LogLevels: int
 {
     case Info = 1;
     case Extensive = 2;
@@ -10,33 +10,52 @@ enum LogLevels:int
 }
 class ScriptConfig
 {
-    private static string $saveDir;
-    private static int $logLevel = LogLevels::Info->value;
-    private static string $logFilePath = "logs.log";
+    private string $saveDir = 'images';
+    private int $logLevel = LogLevels::Info->value;
+    private string $logFilePath = "logs.log";
 
-    public static function initialize()
+    public function __construct(array $argv)
     {
-        if(!is_dir($_POST['saveDir']))
+        if (!is_dir($argv[2]))
         {
-            mkdir($_POST['saveDir'], 0775, true);
-            self::$saveDir = $_POST['saveDir'];
+            mkdir($argv[2], 0775, true);
+            $this->saveDir = $argv[2];
         }
         else
         {
-            self::$saveDir = $_POST['saveDir'];
+            $this->saveDir = $argv[2];
         }
-        self::$logLevel = $_POST['logLevel'];
+        $this->logLevel = $argv[3];
+        if (array_key_exists(4, $argv))
+        {
+            $log = fopen($argv[4], 'r');
+            if ($log)
+            {
+                $this->logFilePath = $argv[4];
+                fclose($log);
+            }
+            else
+            {
+                $log = fopen($this->logFilePath, 'r');
+                fclose($log);
+            }
+        }
+        else
+        {
+            $log = fopen($this->logFilePath, 'r');
+            fclose($log);
+        }
     }
-    public static function getSaveDir()
+    public function getSaveDir()
     {
-        return self::$saveDir;
+        return $this->saveDir;
     }
-    public static function getLogLevel()
+    public function getLogLevel()
     {
-        return self::$logLevel;
+        return $this->logLevel;
     }
-    public static function getLogFilePath()
+    public function getLogFilePath()
     {
-        return self::$logFilePath;
+        return $this->logFilePath;
     }
 }
